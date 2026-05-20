@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b0e11">
+  <meta name="description" content="Strides - Student Trading & Real-time Investment Development Education Simulator">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Strides - Stock Trading Simulator</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- ==================== INSTALL PROMPT ==================== -->
+  <div id="install-toast" class="install-toast hidden">
+    <div class="install-toast-inner">
+      <div class="install-toast-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L12 14M12 14L8 10M12 14L16 10" stroke="#FCD535" stroke-width="2" stroke-linecap="round"/><path d="M4 18L4 20L20 20L20 18" stroke="#FCD535" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="install-toast-text">
+        <strong>Install Strides</strong>
+        <span>Get the full app experience on your device</span>
+      </div>
+      <button id="install-btn" class="btn-install">Install</button>
+      <button id="install-dismiss" class="btn-dismiss">&times;</button>
+    </div>
+  </div>
+
+  <!-- ==================== AUTH SCREEN ==================== -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-container">
+      <div class="auth-logo">
+        <div class="logo-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" rx="12" fill="#FCD535"/>
+            <path d="M14 28L20 18L26 24L34 14" stroke="#0b0e11" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="34" cy="14" r="3" fill="#0ecb81"/>
+          </svg>
+        </div>
+        <h1 class="auth-title">Strides</h1>
+        <p class="auth-subtitle">Learn to trade. Risk-free.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Log In</button>
+        <button class="auth-tab" data-tab="signup">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primary">Log In</button>
+        <div id="login-error" class="auth-error hidden"></div>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form hidden">
+        <div class="form-group">
+          <label for="signup-username">Username</label>
+          <input type="text" id="signup-username" placeholder="trader123" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn-primary">Create Account</button>
+        <div id="signup-error" class="auth-error hidden"></div>
+        <p class="auth-hint">You'll start with <strong>100,000 StrideCoins</strong> to trade!</p>
+      </form>
+
+      <!-- Email Verification Notice -->
+      <div id="verify-notice" class="auth-form hidden">
+        <div class="verify-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="#FCD535" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Check your email!</h3>
+        <p>We've sent a verification link to your email address. Please verify to start trading.</p>
+        <button id="back-to-login" class="btn-secondary">Back to Log In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APP ==================== -->
+  <div id="app-screen" class="screen">
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+      <div class="nav-left">
+        <div class="nav-logo">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" rx="12" fill="#FCD535"/>
+            <path d="M14 28L20 18L26 24L34 14" stroke="#0b0e11" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="34" cy="14" r="3" fill="#0ecb81"/>
+          </svg>
+        </div>
+        <span class="nav-brand">Strides</span>
+      </div>
+      <div class="nav-center">
+        <button class="nav-tab active" data-page="dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3H10V10H3V3ZM14 3H21V10H14V3ZM3 14H10V21H3V14ZM14 14H21V21H14V14Z" stroke="currentColor" stroke-width="2"/></svg>
+          Markets
+        </button>
+        <button class="nav-tab" data-page="summary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 20V10M18 20V4M6 20V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Portfolio
+        </button>
+        <button class="nav-tab" data-page="learn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 3H8C9.06087 3 10.0783 3.42143 10.8284 4.17157C11.5786 4.92172 12 5.93913 12 7V21C12 20.2044 11.6839 19.4413 11.1213 18.8787C10.5587 18.3161 9.79565 18 9 18H2V3ZM22 3H16C14.9391 3 13.9217 3.42143 13.1716 4.17157C12.4214 4.92172 12 5.93913 12 7V21C12 20.2044 12.3161 19.4413 12.8787 18.8787C13.4413 18.3161 14.2044 18 15 18H22V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Learn
+        </button>
+      </div>
+      <div class="nav-right">
+        <div class="balance-display">
+          <span class="balance-label">SC</span>
+          <span id="nav-balance" class="balance-value">100,000</span>
+        </div>
+        <button id="logout-btn" class="btn-logout" title="Log Out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="bottom-tab active" data-page="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 3H10V10H3V3ZM14 3H21V10H14V3ZM3 14H10V21H3V14ZM14 14H21V21H14V14Z" stroke="currentColor" stroke-width="2"/></svg>
+        <span>Markets</span>
+      </button>
+      <button class="bottom-tab" data-page="summary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 20V10M18 20V4M6 20V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Portfolio</span>
+      </button>
+      <button class="bottom-tab" data-page="learn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2 3H8C9.06087 3 10.0783 3.42143 10.8284 4.17157C11.5786 4.92172 12 5.93913 12 7V21C12 20.2044 11.6839 19.4413 11.1213 18.8787C10.5587 18.3161 9.79565 18 9 18H2V3ZM22 3H16C14.9391 3 13.9217 3.42143 13.1716 4.17157C12.4214 4.92172 12 5.93913 12 7V21C12 20.2044 12.3161 19.4413 12.8787 18.8787C13.4413 18.3161 14.2044 18 15 18H22V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Learn</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- ==================== DASHBOARD PAGE ==================== -->
+      <section id="page-dashboard" class="page active">
+        <div class="dashboard-layout">
+          <!-- Left: Stock List -->
+          <aside class="stock-list-panel">
+            <div class="panel-header">
+              <h2>Markets</h2>
+              <div class="search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#707a8a" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="#707a8a" stroke-width="2" stroke-linecap="round"/></svg>
+                <input type="text" id="stock-search" placeholder="Search stocks..." autocomplete="off">
+              </div>
+            </div>
+            <div id="stock-list" class="stock-list">
+              <!-- Populated by JS -->
+            </div>
+          </aside>
+
+          <!-- Right: Stock Detail / Chart -->
+          <section class="stock-detail-panel">
+            <div id="stock-detail-content" class="stock-detail-content">
+              <!-- Default state when no stock selected -->
+              <div id="no-stock-selected" class="no-stock-selected">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none"><path d="M3 3H10V10H3V3ZM14 3H21V10H14V3ZM3 14H10V21H3V14ZM14 14H21V21H14V14Z" stroke="#2b3139" stroke-width="1.5"/></svg>
+                <p>Select a stock from the list to view details</p>
+              </div>
+
+              <!-- Stock detail when selected -->
+              <div id="stock-detail" class="hidden">
+                <div class="detail-header">
+                  <div class="detail-title-row">
+                    <div class="detail-company">
+                      <span id="detail-symbol" class="detail-symbol"></span>
+                      <span id="detail-name" class="detail-name"></span>
+                    </div>
+                    <div class="detail-price-info">
+                      <span id="detail-price" class="detail-price"></span>
+                      <span id="detail-change" class="detail-change"></span>
+                    </div>
+                  </div>
+                  <div class="detail-stats-row">
+                    <div class="stat-item">
+                      <span class="stat-label">Open</span>
+                      <span id="detail-open" class="stat-value"></span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">High</span>
+                      <span id="detail-high" class="stat-value"></span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Low</span>
+                      <span id="detail-low" class="stat-value"></span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Close</span>
+                      <span id="detail-close" class="stat-value"></span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Vol</span>
+                      <span id="detail-vol" class="stat-value"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Chart Controls -->
+                <div class="chart-controls">
+                  <div class="chart-type-toggle">
+                    <button class="chart-type-btn active" data-chart="line">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 20L9 12L13 16L21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Line
+                    </button>
+                    <button class="chart-type-btn" data-chart="candle">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="3" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="8" width="3" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="17" y="6" width="3" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+                      Candle
+                    </button>
+                  </div>
+                  <div class="chart-timeframe">
+                    <button class="tf-btn" data-tf="1D">1D</button>
+                    <button class="tf-btn active" data-tf="1W">1W</button>
+                    <button class="tf-btn" data-tf="1M">1M</button>
+                    <button class="tf-btn" data-tf="3M">3M</button>
+                  </div>
+                  <button id="candle-help-btn" class="btn-info hidden" title="How to read this chart">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  </button>
+                </div>
+
+                <!-- Chart Canvas -->
+                <div class="chart-container">
+                  <canvas id="stock-chart" width="800" height="350"></canvas>
+                  <div id="chart-tooltip" class="chart-tooltip hidden"></div>
+                </div>
+
+                <!-- Candlestick Explanation Overlay -->
+                <div id="candle-explain" class="candle-explain hidden">
+                  <div class="candle-explain-inner">
+                    <button class="candle-explain-close">&times;</button>
+                    <h3>How to Read Candlestick Charts</h3>
+                    <div class="candle-diagram">
+                      <svg viewBox="0 0 200 280" width="200" height="280">
+                        <!-- Bullish candle -->
+                        <line x1="50" y1="20" x2="50" y2="70" stroke="#0ecb81" stroke-width="2"/>
+                        <rect x="35" y="70" width="30" height="80" fill="#0ecb81" rx="2"/>
+                        <line x1="50" y1="150" x2="50" y2="200" stroke="#0ecb81" stroke-width="2"/>
+                        <text x="50" y="220" text-anchor="middle" fill="#0ecb81" font-size="12">Bullish</text>
+                        <text x="50" y="236" text-anchor="middle" fill="#707a8a" font-size="10">(Price went UP)</text>
+                        <!-- Bearish candle -->
+                        <line x1="150" y1="40" x2="150" y2="80" stroke="#f6465d" stroke-width="2"/>
+                        <rect x="135" y="80" width="30" height="70" fill="#f6465d" rx="2"/>
+                        <line x1="150" y1="150" x2="150" y2="190" stroke="#f6465d" stroke-width="2"/>
+                        <text x="150" y="220" text-anchor="middle" fill="#f6465d" font-size="12">Bearish</text>
+                        <text x="150" y="236" text-anchor="middle" fill="#707a8a" font-size="10">(Price went DOWN)</text>
+                        <!-- Labels -->
+                        <text x="15" y="75" fill="#eaecef" font-size="9">Close</text>
+                        <text x="15" y="150" fill="#eaecef" font-size="9">Open</text>
+                        <text x="115" y="85" fill="#eaecef" font-size="9">Open</text>
+                        <text x="115" y="150" fill="#eaecef" font-size="9">Close</text>
+                        <text x="60" y="25" fill="#929aa5" font-size="9">High</text>
+                        <text x="60" y="200" fill="#929aa5" font-size="9">Low</text>
+                      </svg>
+                    </div>
+                    <ul class="candle-explain-list">
+                      <li><strong>Green (Bullish):</strong> The stock price went up. The bottom of the body is the <em>open</em> price, the top is the <em>close</em> price.</li>
+                      <li><strong>Red (Bearish):</strong> The stock price went down. The top of the body is the <em>open</em> price, the bottom is the <em>close</em> price.</li>
+                      <li><strong>Wicks (shadows):</strong> The thin lines above and below the body show the <em>high</em> and <em>low</em> prices reached during that time period.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Buy/Sell Panel -->
+                <div class="trade-panel">
+                  <div class="trade-tabs">
+                    <button class="trade-tab active" data-action="buy">Buy</button>
+                    <button class="trade-tab" data-action="sell">Sell</button>
+                  </div>
+                  <div class="trade-form">
+                    <div class="trade-input-row">
+                      <label for="trade-qty">Quantity</label>
+                      <input type="number" id="trade-qty" min="1" value="1" step="1">
+                    </div>
+                    <div class="trade-info-row">
+                      <span class="trade-info-label">Price per share</span>
+                      <span id="trade-price" class="trade-info-value"></span>
+                    </div>
+                    <div class="trade-info-row">
+                      <span class="trade-info-label">Total cost</span>
+                      <span id="trade-total" class="trade-info-value"></span>
+                    </div>
+                    <div class="trade-info-row">
+                      <span class="trade-info-label">Your holdings</span>
+                      <span id="trade-holdings" class="trade-info-value">0</span>
+                    </div>
+                    <button id="trade-execute" class="btn-trade btn-buy">Buy</button>
+                    <div id="trade-message" class="trade-message hidden"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ==================== SUMMARY PAGE ==================== -->
+      <section id="page-summary" class="page">
+        <div class="summary-container">
+          <div class="summary-header">
+            <h2>Portfolio Summary</h2>
+            <div class="summary-balance-card">
+              <div class="summary-balance-item">
+                <span class="summary-label">StrideCoins Balance</span>
+                <span id="summary-balance" class="summary-value"></span>
+              </div>
+              <div class="summary-balance-item">
+                <span class="summary-label">Portfolio Value</span>
+                <span id="summary-portfolio-value" class="summary-value"></span>
+              </div>
+              <div class="summary-balance-item">
+                <span class="summary-label">Total P&L</span>
+                <span id="summary-pnl" class="summary-value"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- P&L Trend Chart -->
+          <div class="summary-chart-section">
+            <h3>Portfolio Value Over Time</h3>
+            <div class="chart-container">
+              <canvas id="pnl-chart" width="800" height="250"></canvas>
+            </div>
+          </div>
+
+          <!-- Holdings Table -->
+          <div class="summary-holdings-section">
+            <h3>Your Holdings</h3>
+            <div class="holdings-table-wrap">
+              <table class="holdings-table">
+                <thead>
+                  <tr>
+                    <th>Stock</th>
+                    <th>Qty</th>
+                    <th>Avg. Buy</th>
+                    <th>Current</th>
+                    <th>P&L</th>
+                  </tr>
+                </thead>
+                <tbody id="holdings-tbody">
+                  <tr><td colspan="5" class="empty-state">No holdings yet. Start trading!</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent Transactions -->
+          <div class="summary-txn-section">
+            <h3>Recent Transactions</h3>
+            <div class="txn-list" id="txn-list">
+              <div class="empty-state">No transactions yet</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== LEARN PAGE ==================== -->
+      <section id="page-learn" class="page">
+        <div class="learn-container">
+          <div class="learn-header">
+            <h2>Learn to Trade</h2>
+            <p class="learn-subtitle">Master the basics of stock trading with these simple guides</p>
+          </div>
+
+          <!-- Terminology Section -->
+          <div class="learn-section">
+            <h3>Key Terminology</h3>
+            <div class="learn-cards" id="terminology-cards">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Market Terms -->
+          <div class="learn-section">
+            <h3>Market Terms</h3>
+            <div class="learn-cards" id="market-terms-cards">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Trading Patterns -->
+          <div class="learn-section">
+            <h3>Common Trading Patterns</h3>
+            <div class="learn-cards learn-cards-wide" id="patterns-cards">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- How to Read Charts -->
+          <div class="learn-section">
+            <h3>Reading Charts</h3>
+            <div class="learn-cards learn-cards-wide" id="charts-cards">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATIONS ==================== -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ==================== TRADE CONFIRMATION MODAL ==================== -->
+  <div id="trade-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 id="modal-title">Confirm Trade</h3>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn-secondary">Cancel</button>
+        <button id="modal-confirm" class="btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Load config.js if it exists (Supabase credentials) - NOT committed to git -->
+  <script src="config.js" onerror="/* Config not found, using offline mode */"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/db.js"></script>
+  <script src="js/stocks.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/education.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
