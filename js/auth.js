@@ -1,6 +1,6 @@
 /* ============================================================
-   STRIDES - Authentication Module
-   Handles Supabase Auth + local fallback
+   InvestIQ - Authentication
+   Supabase Auth + localStorage fallback
    ============================================================ */
 
 let currentUser = null;
@@ -8,32 +8,34 @@ let currentUser = null;
 function initAuth() {
   initSupabase();
 
-  // Check for existing session
   if (isSupabaseConfigured()) {
-    getSupabase().auth.onAuthStateChange((event, session) => {
+    getSupabase().auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         currentUser = session.user;
+        setCurrentUser({ id: currentUser.id, email: currentUser.email });
+        await db.syncFromSupabase();
         showApp();
       } else if (event === 'SIGNED_OUT') {
         currentUser = null;
+        clearCurrentUser();
         showAuth();
       }
     });
 
-    // Check current session
-    getSupabase().auth.getSession().then(({ data: { session } }) => {
+    getSupabase().auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
         currentUser = session.user;
+        setCurrentUser({ id: currentUser.id, email: currentUser.email });
+        await db.syncFromSupabase();
         showApp();
       } else {
         showAuth();
       }
     });
   } else {
-    // Local fallback
-    const localUser = db.local.getUser();
-    if (localUser) {
-      currentUser = localUser;
+    const savedUser = JSON.parse(localStorage.getItem('investiq_current_user') || 'null');
+    if (savedUser) {
+      currentUser = savedUser;
       showApp();
     } else {
       showAuth();
@@ -62,43 +64,34 @@ function setupAuthUI() {
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     const errorEl = document.getElementById('login-error');
-
     errorEl.classList.add('hidden');
 
-    if (!email || !password) {
-      errorEl.textContent = 'Please fill in all fields';
-      errorEl.classList.remove('hidden');
-      return;
-    }
+    if (!email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.classList.remove('hidden'); return; }
 
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await getSupabase().auth.signInWithPassword({ email, password });
         if (error) throw error;
         currentUser = data.user;
+        setCurrentUser({ id: currentUser.id, email: currentUser.email });
+        await db.syncFromSupabase();
         showApp();
       } catch (err) {
         errorEl.textContent = err.message || 'Login failed. Check your credentials.';
         errorEl.classList.remove('hidden');
       }
     } else {
-      // Local mode
-      const localUser = db.local.getUser();
-      if (localUser && localUser.email === email) {
-        currentUser = localUser;
-        showApp();
-      } else {
-        // Auto-create in local mode
-        currentUser = {
-          id: 'local_' + Date.now(),
-          email,
-          username: email.split('@')[0],
-          created_at: new Date().toISOString()
-        };
+      // Local mode: find or create user keyed by email
+      const userId = 'local_' + email.replace(/[^a-z0-9]/gi, '_');
+      currentUser = { id: userId, email, username: email.split('@')[0] };
+      setCurrentUser(currentUser);
+
+      // If this user has no data yet, init with 100k
+      if (!db.local.getUser()) {
         db.local.setUser(currentUser);
         db.local.setBalance(100000);
-        showApp();
       }
+      showApp();
     }
   });
 
@@ -109,38 +102,31 @@ function setupAuthUI() {
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     const errorEl = document.getElementById('signup-error');
-
     errorEl.classList.add('hidden');
 
-    if (!username || !email || !password) {
-      errorEl.textContent = 'Please fill in all fields';
-      errorEl.classList.remove('hidden');
-      return;
-    }
-
-    if (password.length < 6) {
-      errorEl.textContent = 'Password must be at least 6 characters';
-      errorEl.classList.remove('hidden');
-      return;
-    }
+    if (!username || !email || !password) { errorEl.textContent = 'Please fill in all fields'; errorEl.classList.remove('hidden'); return; }
+    if (password.length < 6) { errorEl.textContent = 'Password must be at least 6 characters'; errorEl.classList.remove('hidden'); return; }
 
     if (isSupabaseConfigured()) {
       try {
+        const redirectUrl = window.location.origin + window.location.pathname;
         const { data, error } = await getSupabase().auth.signUp({
-          email,
-          password,
+          email, password,
           options: {
-            data: { username, display_name: username }
+            data: { username, display_name: username },
+            emailRedirectTo: redirectUrl
           }
         });
         if (error) throw error;
 
-        // Check if email confirmation is needed
         if (data.user && !data.session) {
+          // Email verification needed — show notice
+          document.getElementById('verify-email-display').textContent = email;
           document.getElementById('signup-form').classList.add('hidden');
           document.getElementById('verify-notice').classList.remove('hidden');
         } else if (data.session) {
           currentUser = data.user;
+          setCurrentUser({ id: currentUser.id, email: currentUser.email });
           showApp();
         }
       } catch (err) {
@@ -148,13 +134,9 @@ function setupAuthUI() {
         errorEl.classList.remove('hidden');
       }
     } else {
-      // Local mode
-      currentUser = {
-        id: 'local_' + Date.now(),
-        email,
-        username,
-        created_at: new Date().toISOString()
-      };
+      const userId = 'local_' + email.replace(/[^a-z0-9]/gi, '_');
+      currentUser = { id: userId, email, username };
+      setCurrentUser(currentUser);
       db.local.setUser(currentUser);
       db.local.setBalance(100000);
       showApp();
@@ -172,10 +154,13 @@ function setupAuthUI() {
   document.getElementById('logout-btn').addEventListener('click', async () => {
     if (isSupabaseConfigured()) {
       await getSupabase().auth.signOut();
+      // onAuthStateChange handles the rest
+    } else {
+      // Local mode: just clear current user reference, keep data
+      currentUser = null;
+      clearCurrentUser();
+      showAuth();
     }
-    currentUser = null;
-    db.local.clearAll();
-    showAuth();
   });
 }
 
@@ -187,11 +172,7 @@ function showAuth() {
 function showApp() {
   document.getElementById('auth-screen').classList.remove('active');
   document.getElementById('app-screen').classList.add('active');
-
-  // Initialize the app
   if (window.initApp) window.initApp();
 }
 
-function getCurrentUser() {
-  return currentUser;
-}
+function getCurrentUser() { return currentUser; }

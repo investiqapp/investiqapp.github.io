@@ -1,20 +1,19 @@
 /* ============================================================
-   STRIDES - Environment Configuration
+   InvestIQ - Environment Configuration
    ============================================================
    
-   This file is where you set your Supabase credentials.
-   For GitHub Pages deployment, you can either:
+   The Supabase ANON KEY and Twelve Data API key are designed
+   to be public (like a Firebase API key). Security is handled
+   by Row Level Security (RLS) on the Supabase side.
    
-   Option 1: Set these as GitHub Actions secrets and generate
-             this file during the build step.
-   
-   Option 2: Create this file manually with your credentials.
-             ⚠️ WARNING: Never commit this file to a public repo
-             with real credentials! Add it to .gitignore.
-   
-   Option 3: If you just want to test locally without Supabase,
-             leave the defaults — the app runs in offline/local mode.
+   ⚠️  NEVER put your SUPABASE SERVICE ROLE KEY here.
+   ✅  The anon key is safe to commit.
    ============================================================ */
 
-window.__STRIDES_SUPABASE_URL__ = 'https://objmhmnraikgjpfzudpt.supabase.co';
-window.__STRIDES_SUPABASE_ANON_KEY__ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iam1obW5yYWlrZ2pwZnp1ZHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjIzNDAsImV4cCI6MjA5NDgzODM0MH0.DAxBc0xab4Mw6ng18oilQ8HFAjbGNYkAS8Oo6flviWU';
+// Supabase — for auth + database
+window.__INVESTIQ_SUPABASE_URL__ = 'https://objmhmnraikgjpfzudpt.supabase.co';
+window.__INVESTIQ_SUPABASE_ANON_KEY__ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iam1obW5yYWlrZ2pwZnp1ZHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjIzNDAsImV4cCI6MjA5NDgzODM0MH0.DAxBc0xab4Mw6ng18oilQ8HFAjbGNYkAS8Oo6flviWU';
+
+// Twelve Data — free API key for real stock prices
+// Sign up at https://twelvedata.com — free tier: 800 credits/day
+window.__INVESTIQ_TWELVEDATA_KEY__ = 'YOUR_TWELVE_DATA_KEY';
