@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0b0e11">
-  <meta name="description" content="Strides - Student Trading & Real-time Investment Development Education Simulator">
+  <meta name="description" content="InvestIQ - Learn stock trading risk-free">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Strides - Stock Trading Simulator</title>
+  <title>InvestIQ - Stock Trading Simulator</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -21,8 +21,8 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L12 14M12 14L8 10M12 14L16 10" stroke="#FCD535" stroke-width="2" stroke-linecap="round"/><path d="M4 18L4 20L20 20L20 18" stroke="#FCD535" stroke-width="2" stroke-linecap="round"/></svg>
       </div>
       <div class="install-toast-text">
-        <strong>Install Strides</strong>
-        <span>Get the full app experience on your device</span>
+        <strong>Install InvestIQ</strong>
+        <span>Get the full app experience</span>
       </div>
       <button id="install-btn" class="btn-install">Install</button>
       <button id="install-dismiss" class="btn-dismiss">&times;</button>
@@ -40,7 +40,7 @@
             <circle cx="34" cy="14" r="3" fill="#0ecb81"/>
           </svg>
         </div>
-        <h1 class="auth-title">Strides</h1>
+        <h1 class="auth-title">InvestIQ</h1>
         <p class="auth-subtitle">Learn to trade. Risk-free.</p>
       </div>
 
@@ -85,10 +85,15 @@
       <!-- Email Verification Notice -->
       <div id="verify-notice" class="auth-form hidden">
         <div class="verify-icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="#FCD535" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="#FCD535" stroke-width="1.5"/><path d="M2 7L12 13L22 7" stroke="#FCD535" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <h3>Check your email!</h3>
-        <p>We've sent a verification link to your email address. Please verify to start trading.</p>
+        <p class="verify-main-msg">We've sent a verification link to <strong id="verify-email-display"></strong>. Please open it to verify your account before logging in.</p>
+        <div class="verify-steps">
+          <div class="verify-step">1. Check your inbox (and spam folder)</div>
+          <div class="verify-step">2. Click the verification link in the email</div>
+          <div class="verify-step">3. Come back here and log in</div>
+        </div>
         <button id="back-to-login" class="btn-secondary">Back to Log In</button>
       </div>
     </div>
@@ -106,7 +111,7 @@
             <circle cx="34" cy="14" r="3" fill="#0ecb81"/>
           </svg>
         </div>
-        <span class="nav-brand">Strides</span>
+        <span class="nav-brand">InvestIQ</span>
       </div>
       <div class="nav-center">
         <button class="nav-tab active" data-page="dashboard">
@@ -163,15 +168,19 @@
                 <input type="text" id="stock-search" placeholder="Search stocks..." autocomplete="off">
               </div>
             </div>
-            <div id="stock-list" class="stock-list">
-              <!-- Populated by JS -->
-            </div>
+            <div id="stock-list" class="stock-list"></div>
           </aside>
 
           <!-- Right: Stock Detail / Chart -->
           <section class="stock-detail-panel">
+            <!-- Back button (mobile only) -->
+            <button id="back-to-list" class="btn-back hidden">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Back
+            </button>
+
             <div id="stock-detail-content" class="stock-detail-content">
-              <!-- Default state when no stock selected -->
+              <!-- Default state -->
               <div id="no-stock-selected" class="no-stock-selected">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none"><path d="M3 3H10V10H3V3ZM14 3H21V10H14V3ZM3 14H10V21H3V14ZM14 14H21V21H14V14Z" stroke="#2b3139" stroke-width="1.5"/></svg>
                 <p>Select a stock from the list to view details</p>
@@ -191,26 +200,11 @@
                     </div>
                   </div>
                   <div class="detail-stats-row">
-                    <div class="stat-item">
-                      <span class="stat-label">Open</span>
-                      <span id="detail-open" class="stat-value"></span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">High</span>
-                      <span id="detail-high" class="stat-value"></span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">Low</span>
-                      <span id="detail-low" class="stat-value"></span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">Close</span>
-                      <span id="detail-close" class="stat-value"></span>
-                    </div>
-                    <div class="stat-item">
-                      <span class="stat-label">Vol</span>
-                      <span id="detail-vol" class="stat-value"></span>
-                    </div>
+                    <div class="stat-item"><span class="stat-label">Open</span><span id="detail-open" class="stat-value"></span></div>
+                    <div class="stat-item"><span class="stat-label">High</span><span id="detail-high" class="stat-value"></span></div>
+                    <div class="stat-item"><span class="stat-label">Low</span><span id="detail-low" class="stat-value"></span></div>
+                    <div class="stat-item"><span class="stat-label">Close</span><span id="detail-close" class="stat-value"></span></div>
+                    <div class="stat-item"><span class="stat-label">Vol</span><span id="detail-vol" class="stat-value"></span></div>
                   </div>
                 </div>
 
@@ -241,6 +235,7 @@
                 <div class="chart-container">
                   <canvas id="stock-chart" width="800" height="350"></canvas>
                   <div id="chart-tooltip" class="chart-tooltip hidden"></div>
+                  <div id="chart-loading" class="chart-loading hidden">Loading chart data...</div>
                 </div>
 
                 <!-- Candlestick Explanation Overlay -->
@@ -250,19 +245,16 @@
                     <h3>How to Read Candlestick Charts</h3>
                     <div class="candle-diagram">
                       <svg viewBox="0 0 200 280" width="200" height="280">
-                        <!-- Bullish candle -->
                         <line x1="50" y1="20" x2="50" y2="70" stroke="#0ecb81" stroke-width="2"/>
                         <rect x="35" y="70" width="30" height="80" fill="#0ecb81" rx="2"/>
                         <line x1="50" y1="150" x2="50" y2="200" stroke="#0ecb81" stroke-width="2"/>
                         <text x="50" y="220" text-anchor="middle" fill="#0ecb81" font-size="12">Bullish</text>
                         <text x="50" y="236" text-anchor="middle" fill="#707a8a" font-size="10">(Price went UP)</text>
-                        <!-- Bearish candle -->
                         <line x1="150" y1="40" x2="150" y2="80" stroke="#f6465d" stroke-width="2"/>
                         <rect x="135" y="80" width="30" height="70" fill="#f6465d" rx="2"/>
                         <line x1="150" y1="150" x2="150" y2="190" stroke="#f6465d" stroke-width="2"/>
                         <text x="150" y="220" text-anchor="middle" fill="#f6465d" font-size="12">Bearish</text>
                         <text x="150" y="236" text-anchor="middle" fill="#707a8a" font-size="10">(Price went DOWN)</text>
-                        <!-- Labels -->
                         <text x="15" y="75" fill="#eaecef" font-size="9">Close</text>
                         <text x="15" y="150" fill="#eaecef" font-size="9">Open</text>
                         <text x="115" y="85" fill="#eaecef" font-size="9">Open</text>
@@ -332,42 +324,22 @@
               </div>
             </div>
           </div>
-
-          <!-- P&L Trend Chart -->
           <div class="summary-chart-section">
             <h3>Portfolio Value Over Time</h3>
-            <div class="chart-container">
-              <canvas id="pnl-chart" width="800" height="250"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="pnl-chart" width="800" height="250"></canvas></div>
           </div>
-
-          <!-- Holdings Table -->
           <div class="summary-holdings-section">
             <h3>Your Holdings</h3>
             <div class="holdings-table-wrap">
               <table class="holdings-table">
-                <thead>
-                  <tr>
-                    <th>Stock</th>
-                    <th>Qty</th>
-                    <th>Avg. Buy</th>
-                    <th>Current</th>
-                    <th>P&L</th>
-                  </tr>
-                </thead>
-                <tbody id="holdings-tbody">
-                  <tr><td colspan="5" class="empty-state">No holdings yet. Start trading!</td></tr>
-                </tbody>
+                <thead><tr><th>Stock</th><th>Qty</th><th>Avg. Buy</th><th>Current</th><th>P&L</th></tr></thead>
+                <tbody id="holdings-tbody"><tr><td colspan="5" class="empty-state">No holdings yet. Start trading!</td></tr></tbody>
               </table>
             </div>
           </div>
-
-          <!-- Recent Transactions -->
           <div class="summary-txn-section">
             <h3>Recent Transactions</h3>
-            <div class="txn-list" id="txn-list">
-              <div class="empty-state">No transactions yet</div>
-            </div>
+            <div class="txn-list" id="txn-list"><div class="empty-state">No transactions yet</div></div>
           </div>
         </div>
       </section>
@@ -379,47 +351,19 @@
             <h2>Learn to Trade</h2>
             <p class="learn-subtitle">Master the basics of stock trading with these simple guides</p>
           </div>
-
-          <!-- Terminology Section -->
-          <div class="learn-section">
-            <h3>Key Terminology</h3>
-            <div class="learn-cards" id="terminology-cards">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-
-          <!-- Market Terms -->
-          <div class="learn-section">
-            <h3>Market Terms</h3>
-            <div class="learn-cards" id="market-terms-cards">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-
-          <!-- Trading Patterns -->
-          <div class="learn-section">
-            <h3>Common Trading Patterns</h3>
-            <div class="learn-cards learn-cards-wide" id="patterns-cards">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-
-          <!-- How to Read Charts -->
-          <div class="learn-section">
-            <h3>Reading Charts</h3>
-            <div class="learn-cards learn-cards-wide" id="charts-cards">
-              <!-- Populated by JS -->
-            </div>
-          </div>
+          <div class="learn-section"><h3>Key Terminology</h3><div class="learn-cards" id="terminology-cards"></div></div>
+          <div class="learn-section"><h3>Market Terms</h3><div class="learn-cards" id="market-terms-cards"></div></div>
+          <div class="learn-section"><h3>Common Trading Patterns</h3><div class="learn-cards learn-cards-wide" id="patterns-cards"></div></div>
+          <div class="learn-section"><h3>Reading Charts</h3><div class="learn-cards learn-cards-wide" id="charts-cards"></div></div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- ==================== TOAST NOTIFICATIONS ==================== -->
+  <!-- Toast Notifications -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- ==================== TRADE CONFIRMATION MODAL ==================== -->
+  <!-- Trade Confirmation Modal -->
   <div id="trade-modal" class="modal hidden">
     <div class="modal-overlay"></div>
     <div class="modal-content">
@@ -432,8 +376,7 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <!-- Load config.js if it exists (Supabase credentials) - NOT committed to git -->
+  <!-- Scripts — config.js loads first (contains API keys) -->
   <script src="config.js" onerror="/* Config not found, using offline mode */"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/db.js"></script>
